@@ -9,6 +9,8 @@
 
 #include "core/libcamera_app.hpp"
 #include "core/options.hpp"
+#include "postprocess/negate_stage.hpp"
+#include "postprocess/sobel_cv_stage.hpp"
 
 using namespace std::placeholders;
 
@@ -17,10 +19,12 @@ using namespace std::placeholders;
 static void event_loop(LibcameraApp &app)
 {
 	Options const *options = app.GetOptions();
+	SobelCVStage stage(&app);
 
 	app.OpenCamera();
 	app.ConfigureViewfinder();
 	app.StartCamera();
+	stage.SetCallback(std::bind(&LibcameraApp::ShowPreview, &app, _1, app.ViewfinderStream()));
 	// When the preview window is done with a set of buffers, queue them back to libcamera.
 	app.SetPreviewDoneCallback(std::bind(&LibcameraApp::QueueRequest, &app, _1));
 	auto start_time = std::chrono::high_resolution_clock::now();
@@ -40,7 +44,9 @@ static void event_loop(LibcameraApp &app)
 			return;
 
 		CompletedRequest &completed_request = std::get<CompletedRequest>(msg.payload);
-		app.ShowPreview(completed_request, app.ViewfinderStream());
+
+		stage.PostProcess(completed_request);
+		//app.ShowPreview(completed_request, app.ViewfinderStream());
 	}
 }
 
