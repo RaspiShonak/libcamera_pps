@@ -26,7 +26,7 @@
 #include <libcamera/framebuffer_allocator.h>
 #include <libcamera/property_ids.h>
 
-#include "completed_request.hpp"
+#include "core/completed_request.hpp"
 
 class Options;
 class Preview;
