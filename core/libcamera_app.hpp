@@ -206,4 +206,5 @@ private:
 	ControlList controls_;
 	// Other:
 	uint64_t last_timestamp_;
+	uint64_t sequence_ = 0;
 };

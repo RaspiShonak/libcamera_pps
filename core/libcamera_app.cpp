@@ -580,8 +580,7 @@ void LibcameraApp::requestComplete(Request *request)
 	if (request->status() == Request::RequestCancelled)
 		return;
 
-	CompletedRequest payload(request->buffers().begin()->second->metadata().sequence, request->buffers(),
-							 request->metadata());
+	CompletedRequest payload(sequence_++, request->buffers(), request->metadata());
 	{
 		request->reuse();
 		std::lock_guard<std::mutex> lock(free_requests_mutex_);
