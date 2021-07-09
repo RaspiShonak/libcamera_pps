@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 /*
- * Copyright (C) 2020, Raspberry Pi (Trading) Ltd.
+ * Copyright (C) 2020-2021, Raspberry Pi (Trading) Ltd.
  *
  * libcamera_app.hpp - base class for libcamera apps.
  */
@@ -26,26 +26,13 @@
 #include <libcamera/framebuffer_allocator.h>
 #include <libcamera/property_ids.h>
 
+#include "completed_request.hpp"
+
 class Options;
 class Preview;
 
 namespace controls = libcamera::controls;
 namespace properties = libcamera::properties;
-
-struct CompletedRequest
-{
-	using BufferMap = libcamera::Request::BufferMap;
-	using ControlList = libcamera::ControlList;
-	CompletedRequest() {}
-	CompletedRequest(unsigned int seq, BufferMap const &b, ControlList const &m)
-		: sequence(seq), buffers(b), metadata(m)
-	{
-	}
-	unsigned int sequence;
-	BufferMap buffers;
-	ControlList metadata;
-	float framerate;
-};
 
 typedef std::function<void(CompletedRequest &)> PreviewDoneCallback;
 
