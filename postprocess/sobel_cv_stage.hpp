@@ -1,8 +1,11 @@
-#include "post_process_stage.hpp"
+#include "postprocess/post_process_stage.hpp"
 
 class SobelCVStage : public PostProcessStage
 {
-	using PostProcessStage::PostProcessStage;
+public:
+	SobelCVStage(LibcameraApp *app):PostProcessStage(app)
+	{
+	}
 
 protected:
 	void process(CompletedRequest &completed_request);

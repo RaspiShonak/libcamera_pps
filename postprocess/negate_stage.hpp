@@ -1,8 +1,11 @@
-#include "post_process_stage.hpp"
+#include "postprocess/post_process_stage.hpp"
 
 class NegateStage : public PostProcessStage
 {
-	using PostProcessStage::PostProcessStage;
+public:
+	NegateStage(LibcameraApp *app):PostProcessStage(app)
+	{
+	}
 
 protected:
 	void process(CompletedRequest &completed_request);

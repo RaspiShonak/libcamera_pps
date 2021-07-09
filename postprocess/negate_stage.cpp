@@ -1,4 +1,4 @@
-#include "negate_stage.hpp"
+#include "postprocess/negate_stage.hpp"
 
 void NegateStage::process(CompletedRequest &completed_request)
 {

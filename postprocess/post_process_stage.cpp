@@ -1,7 +1,7 @@
 #include <chrono>
 #include <iostream>
 
-#include "post_process_stage.hpp"
+#include "postprocess/post_process_stage.hpp"
 
 PostProcessStage::PostProcessStage(LibcameraApp *app) : app_(app), abort_(false), sequence_(0)
 {
