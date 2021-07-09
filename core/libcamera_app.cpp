@@ -531,7 +531,7 @@ void LibcameraApp::setupCapture()
 			for (unsigned i = 0; i < buffer->planes().size(); i++)
 			{
 				const FrameBuffer::Plane &plane = buffer->planes()[i];
-				void *memory = mmap(NULL, plane.length, PROT_READ, MAP_SHARED, plane.fd.fd(), 0);
+				void *memory = mmap(NULL, plane.length, PROT_READ | PROT_WRITE, MAP_SHARED, plane.fd.fd(), 0);
 				mapped_buffers_[buffer.get()].push_back(memory);
 			}
 			frame_buffers_[stream].push(buffer.get());
