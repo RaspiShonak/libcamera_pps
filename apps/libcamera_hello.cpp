@@ -9,9 +9,12 @@
 
 #include "core/libcamera_app.hpp"
 #include "core/options.hpp"
-#include "postprocess/face_detect_cv_stage.hpp"
 #include "postprocess/negate_stage.hpp"
+
+#if OPENCV_PRESENT
+#include "postprocess/face_detect_cv_stage.hpp"
 #include "postprocess/sobel_cv_stage.hpp"
+#endif
 
 using namespace std::placeholders;
 
