@@ -40,10 +40,11 @@ private:
 	std::mutex pps_output_mutex_;
 	std::condition_variable pps_output_cond_var_;
 	std::thread pps_output_thread_;
+	std::vector<Stream *> streams_;
 	bool abort_;
 	uint64_t sequence_;
 
 protected:
-	virtual void process(CompletedRequest &completed_request);
+	virtual void process(CompletedRequest &completed_request, libcamera::Stream *stream);
 	LibcameraApp *app_;
 };

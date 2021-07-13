@@ -21,6 +21,7 @@ PostProcessStage::~PostProcessStage()
 void PostProcessStage::PostProcess(CompletedRequest &completed_request)
 {
 	std::lock_guard<std::mutex> lock(pps_input_mutex_);
+	streams_ = app_->GetActiveStreams();
 	pps_input_queue_.push(completed_request);
 	pps_input_cond_var_.notify_all();
 }
@@ -50,7 +51,10 @@ void PostProcessStage::postProcessThread(int num)
 			}
 		}
 
-		process(completed_request);
+		for (libcamera::Stream *stream : streams_)
+		{
+			process(completed_request, stream);
+		}
 
 		std::lock_guard<std::mutex> lock(pps_output_mutex_);
 		pps_output_queue_[num].push(completed_request);
@@ -91,6 +95,6 @@ void PostProcessStage::outputThread()
 	}
 }
 
-void PostProcessStage::process(CompletedRequest &completed_request)
+void PostProcessStage::process(CompletedRequest &completed_request, libcamera::Stream *stream)
 {
 }

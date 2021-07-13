@@ -8,5 +8,5 @@ public:
 	}
 
 protected:
-	void process(CompletedRequest &completed_request);
+	void process(CompletedRequest &completed_request, libcamera::Stream *stream);
 };

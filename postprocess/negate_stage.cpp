@@ -1,19 +1,14 @@
 #include "postprocess/negate_stage.hpp"
 
-void NegateStage::process(CompletedRequest &completed_request)
+void NegateStage::process(CompletedRequest &completed_request, libcamera::Stream *stream)
 {
 	int w, h, stride;
-	std::vector<Stream *> streams;
-	streams = app_->GetActiveStreams();
+	app_->StreamDimensions(stream, &w, &h, &stride);
+	libcamera::Span<uint8_t> buffer = app_->Mmap(completed_request.buffers[stream])[0];
+	uint8_t *ptr = buffer.data();
 
-	for (auto const stream : streams)
-	{
-		app_->StreamDimensions(stream, &w, &h, &stride);
-		libcamera::Span<uint8_t> buffer = app_->Mmap(completed_request.buffers[stream])[0];
+	//Everything beyond this point is image processing...
 
-		uint8_t *ptr = buffer.data();
-
-		for (unsigned int i = 0; i < buffer.size(); i++)
-			*(ptr++) ^= 0xff;
-	}
+	for (unsigned int i = 0; i < buffer.size(); i++)
+		*(ptr++) ^= 0xff;
 }
