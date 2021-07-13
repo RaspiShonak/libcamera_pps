@@ -15,7 +15,7 @@ using Stream = libcamera::Stream;
 class PostProcessStage
 {
 public:
-	PostProcessStage(LibcameraApp *app);
+	PostProcessStage(LibcameraApp *app, const std::vector<libcamera::PixelFormat> pixel_formats);
 
 	virtual ~PostProcessStage();
 
@@ -43,6 +43,7 @@ private:
 	std::vector<Stream *> streams_;
 	bool abort_;
 	uint64_t sequence_;
+	const std::vector<libcamera::PixelFormat> pixel_formats_;
 
 protected:
 	virtual void process(CompletedRequest &completed_request, libcamera::Stream *stream);

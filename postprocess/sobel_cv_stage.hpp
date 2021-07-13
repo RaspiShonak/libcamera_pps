@@ -3,7 +3,8 @@
 class SobelCVStage : public PostProcessStage
 {
 public:
-	SobelCVStage(LibcameraApp *app):PostProcessStage(app)
+	SobelCVStage(LibcameraApp *app, const std::vector<libcamera::PixelFormat> pixel_formats)
+		: PostProcessStage(app, pixel_formats)
 	{
 	}
 

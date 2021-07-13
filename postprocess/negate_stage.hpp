@@ -3,7 +3,8 @@
 class NegateStage : public PostProcessStage
 {
 public:
-	NegateStage(LibcameraApp *app):PostProcessStage(app)
+	NegateStage(LibcameraApp *app, const std::vector<libcamera::PixelFormat> pixel_formats)
+		: PostProcessStage(app, pixel_formats)
 	{
 	}
 

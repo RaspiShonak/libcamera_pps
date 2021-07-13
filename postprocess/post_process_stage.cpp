@@ -3,7 +3,8 @@
 
 #include "postprocess/post_process_stage.hpp"
 
-PostProcessStage::PostProcessStage(LibcameraApp *app) : app_(app), abort_(false), sequence_(0)
+PostProcessStage::PostProcessStage(LibcameraApp *app, const std::vector<libcamera::PixelFormat> pixel_formats)
+	: app_(app), pixel_formats_(pixel_formats), abort_(false), sequence_(0)
 {
 	pps_output_thread_ = std::thread(&PostProcessStage::outputThread, this);
 	for (int i = 0; i < NUM_PPS_THREADS; i++)
@@ -53,7 +54,11 @@ void PostProcessStage::postProcessThread(int num)
 
 		for (libcamera::Stream *stream : streams_)
 		{
-			process(completed_request, stream);
+			if (std::find(pixel_formats_.begin(), pixel_formats_.end(), stream->configuration().pixelFormat) !=
+				pixel_formats_.end())
+			{
+				process(completed_request, stream);
+			}
 		}
 
 		std::lock_guard<std::mutex> lock(pps_output_mutex_);
