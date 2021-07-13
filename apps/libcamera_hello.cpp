@@ -19,7 +19,7 @@ using namespace std::placeholders;
 static void event_loop(LibcameraApp &app)
 {
 	Options const *options = app.GetOptions();
-	SobelCVStage stage(&app);
+	NegateStage stage(&app);
 
 	app.OpenCamera();
 	app.ConfigureViewfinder();

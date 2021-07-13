@@ -247,9 +247,9 @@ void LibcameraApp::Teardown()
 
 	for (auto &iter : mapped_buffers_)
 	{
-		assert(iter.first->planes().size() == iter.second.size());
-		for (unsigned i = 0; i < iter.first->planes().size(); i++)
-			munmap(iter.second[i], iter.first->planes()[i].length);
+		// assert(iter.first->planes().size() == iter.second.size());
+		// for (unsigned i = 0; i < iter.first->planes().size(); i++)
+		munmap(iter.second.data(), iter.second.size());
 	}
 	mapped_buffers_.clear();
 
@@ -476,11 +476,11 @@ std::vector<libcamera::Stream *> LibcameraApp::GetActiveStreams() const
 	return streams;
 }
 
-std::vector<void *> LibcameraApp::Mmap(FrameBuffer *buffer) const
+std::vector<libcamera::Span<uint8_t>> LibcameraApp::Mmap(FrameBuffer *buffer) const
 {
 	auto item = mapped_buffers_.find(buffer);
 	if (item == mapped_buffers_.end())
-		return std::vector<void *>();
+		return {};
 	return item->second;
 }
 
@@ -555,7 +555,8 @@ void LibcameraApp::setupCapture()
 			{
 				const FrameBuffer::Plane &plane = buffer->planes()[i];
 				void *memory = mmap(NULL, plane.length, PROT_READ | PROT_WRITE, MAP_SHARED, plane.fd.fd(), 0);
-				mapped_buffers_[buffer.get()].push_back(memory);
+				std::size_t len = plane.length;
+				mapped_buffers_[buffer.get()].push_back(libcamera::Span<uint8_t>(static_cast<uint8_t *>(memory), len));
 			}
 			frame_buffers_[stream].push(buffer.get());
 		}

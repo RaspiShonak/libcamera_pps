@@ -19,9 +19,9 @@ void SobelCVStage::process(CompletedRequest &completed_request)
 		uint8_t value = 128;
 		int num = (stride * h) / 2;
 
-		void *mem = app_->Mmap(completed_request.buffers[stream])[0];
+		libcamera::Span<uint8_t> buffer = app_->Mmap(completed_request.buffers[stream])[0];
 
-		uint8_t *ptr = (uint8_t *)mem;
+		uint8_t *ptr = (uint8_t *)buffer.data();
 		Mat src = Mat(h, w, CV_8U, ptr, stride);
 		int scale = 1;
 		int delta = 0;

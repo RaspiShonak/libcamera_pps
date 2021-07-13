@@ -18,6 +18,7 @@
 #include <thread>
 #include <variant>
 
+#include <libcamera/base/span.h>
 #include <libcamera/camera.h>
 #include <libcamera/camera_manager.h>
 #include <libcamera/control_ids.h>
@@ -109,7 +110,7 @@ public:
 	Stream *VideoStream(int *w = nullptr, int *h = nullptr, int *stride = nullptr) const;
 	std::vector<Stream *> GetActiveStreams() const;
 
-	std::vector<void *> Mmap(FrameBuffer *buffer) const;
+	std::vector<libcamera::Span<uint8_t>> Mmap(FrameBuffer *buffer) const;
 
 	void SetPreviewDoneCallback(PreviewDoneCallback preview_done_callback);
 	void ShowPreview(CompletedRequest &completed_request, Stream *stream);
@@ -177,7 +178,7 @@ private:
 	std::shared_ptr<Camera> camera_;
 	bool camera_acquired_ = false;
 	std::unique_ptr<CameraConfiguration> configuration_;
-	std::map<FrameBuffer *, std::vector<void *>> mapped_buffers_;
+	std::map<FrameBuffer *, std::vector<libcamera::Span<uint8_t>>> mapped_buffers_;
 	Stream *viewfinder_stream_ = nullptr;
 	Stream *still_stream_ = nullptr;
 	Stream *raw_stream_ = nullptr;

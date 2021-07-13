@@ -3,13 +3,17 @@
 void NegateStage::process(CompletedRequest &completed_request)
 {
 	int w, h, stride;
-	Stream *stream = app_->ViewfinderStream(&w, &h, &stride);
+	std::vector<Stream *> streams;
+	streams = app_->GetActiveStreams();
 
-	void *mem = app_->Mmap(completed_request.buffers[stream])[0];
+	for (auto const stream : streams)
+	{
+		app_->StreamDimensions(stream, &w, &h, &stride);
+		libcamera::Span<uint8_t> buffer = app_->Mmap(completed_request.buffers[stream])[0];
 
-	uint8_t *ptr = (uint8_t *)mem;
+		uint8_t *ptr = buffer.data();
 
-	unsigned int num_pixels = stride * h * 3 / 2;
-	for (unsigned int i = 0; i < num_pixels; i++)
-		*(ptr++) ^= 0xff;
+		for (unsigned int i = 0; i < buffer.size(); i++)
+			*(ptr++) ^= 0xff;
+	}
 }
