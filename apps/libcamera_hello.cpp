@@ -9,6 +9,7 @@
 
 #include "core/libcamera_app.hpp"
 #include "core/options.hpp"
+#include "postprocess/face_detect_cv_stage.hpp"
 #include "postprocess/negate_stage.hpp"
 #include "postprocess/sobel_cv_stage.hpp"
 
@@ -19,7 +20,7 @@ using namespace std::placeholders;
 static void event_loop(LibcameraApp &app)
 {
 	Options const *options = app.GetOptions();
-	SobelCVStage stage(&app, { libcamera::formats::YUV420 });
+	FaceDetectCVStage stage(&app, { libcamera::formats::YUV420 });
 
 	app.OpenCamera();
 	app.ConfigureViewfinder();

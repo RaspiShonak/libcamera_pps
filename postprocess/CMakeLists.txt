@@ -17,7 +17,7 @@ message(STATUS "    version: ${OpenCV_VERSION}")
 message(STATUS "    libraries: ${OpenCV_LIBS}")
 message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
-add_library(postprocess post_process_stage.cpp negate_stage.cpp sobel_cv_stage.cpp)
+add_library(postprocess post_process_stage.cpp negate_stage.cpp sobel_cv_stage.cpp face_detect_cv_stage.cpp)
 target_link_libraries(postprocess ${OpenCV_LIBS})
 
 install(TARGETS postprocess LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
