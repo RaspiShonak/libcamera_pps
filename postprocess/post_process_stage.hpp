@@ -1,10 +1,10 @@
 #pragma once
 
 #include <condition_variable>
-#include <functional>
+#include <future>
 #include <mutex>
 #include <queue>
-#include <thread>
+#include <vector>
 
 #include "core/completed_request.hpp"
 #include "core/libcamera_app.hpp"
@@ -16,36 +16,26 @@ class PostProcessStage
 {
 public:
 	PostProcessStage(LibcameraApp *app, const std::vector<libcamera::PixelFormat> pixel_formats);
-
 	virtual ~PostProcessStage();
 
-	void PostProcess(CompletedRequest &completed_request);
-
+	void PostProcess(CompletedRequest &request);
 	void SetCallback(OutputReadyCallback callback) { output_ready_callback_ = callback; }
 
 private:
-	static const int NUM_PPS_THREADS = 4;
-
-	void postProcessThread(int num);
-
+	void filterStreams(std::vector<Stream *> &streams);
 	void outputThread();
 
+	const std::vector<PostProcessStage *> stages_;
+	std::queue<std::future<CompletedRequest>> results_;
+	std::thread output_thread_;
+	bool quit_;
 	OutputReadyCallback output_ready_callback_;
-
-	std::queue<CompletedRequest> pps_input_queue_;
-	std::mutex pps_input_mutex_;
-	std::condition_variable pps_input_cond_var_;
-	std::thread pps_input_thread_[NUM_PPS_THREADS];
-	std::queue<CompletedRequest> pps_output_queue_[NUM_PPS_THREADS];
-	std::mutex pps_output_mutex_;
-	std::condition_variable pps_output_cond_var_;
-	std::thread pps_output_thread_;
-	std::vector<Stream *> streams_;
-	bool abort_;
-	uint64_t sequence_;
-	const std::vector<libcamera::PixelFormat> pixel_formats_;
+	std::mutex mutex_;
+	std::condition_variable cv_;
 
 protected:
-	virtual void process(CompletedRequest &completed_request, libcamera::Stream *stream);
+	virtual void process(CompletedRequest &request, Stream *stream) = 0;
+
 	LibcameraApp *app_;
+	const std::vector<libcamera::PixelFormat> pixel_formats_;
 };

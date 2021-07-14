@@ -1,105 +1,99 @@
 #include <chrono>
-#include <iostream>
 
 #include "postprocess/post_process_stage.hpp"
 
+using namespace std::literals::chrono_literals;
+
 PostProcessStage::PostProcessStage(LibcameraApp *app, const std::vector<libcamera::PixelFormat> pixel_formats)
-	: app_(app), pixel_formats_(pixel_formats), abort_(false), sequence_(0)
+	: app_(app), pixel_formats_(pixel_formats), quit_(false)
 {
-	pps_output_thread_ = std::thread(&PostProcessStage::outputThread, this);
-	for (int i = 0; i < NUM_PPS_THREADS; i++)
-		pps_input_thread_[i] = std::thread(std::bind(&PostProcessStage::postProcessThread, this, i));
+	output_thread_ = std::thread(&PostProcessStage::outputThread, this);
 }
 
 PostProcessStage::~PostProcessStage()
 {
-	abort_ = true;
-	for (int i = 0; i < NUM_PPS_THREADS; i++)
-		pps_input_thread_[i].join();
-	pps_output_thread_.join();
-}
-
-void PostProcessStage::PostProcess(CompletedRequest &completed_request)
-{
-	std::lock_guard<std::mutex> lock(pps_input_mutex_);
-	streams_ = app_->GetActiveStreams();
-	pps_input_queue_.push(completed_request);
-	pps_input_cond_var_.notify_all();
-}
-
-void PostProcessStage::postProcessThread(int num)
-{
-	CompletedRequest completed_request;
-	while (true)
 	{
-		{
-			std::unique_lock<std::mutex> lock(pps_input_mutex_);
-			while (true)
-			{
-				using namespace std::chrono_literals;
-				if (abort_)
-				{
-					return;
-				}
-				if (!pps_input_queue_.empty())
-				{
-					completed_request = pps_input_queue_.front();
-					pps_input_queue_.pop();
-					break;
-				}
-				else
-					pps_input_cond_var_.wait_for(lock, 200ms);
-			}
-		}
-
-		for (libcamera::Stream *stream : streams_)
-		{
-			if (std::find(pixel_formats_.begin(), pixel_formats_.end(), stream->configuration().pixelFormat) !=
-				pixel_formats_.end())
-			{
-				process(completed_request, stream);
-			}
-		}
-
-		std::lock_guard<std::mutex> lock(pps_output_mutex_);
-		pps_output_queue_[num].push(completed_request);
-		pps_output_cond_var_.notify_one();
+		std::unique_lock<std::mutex> l(mutex_);
+		quit_ = true;
+		cv_.notify_one();
 	}
+
+	output_thread_.join();
+}
+
+void PostProcessStage::PostProcess(CompletedRequest &request)
+{
+	std::vector<Stream *> streams = app_->GetActiveStreams();
+
+	filterStreams(streams);
+
+	// Test the case where we have no streams to process and we can call output_ready_callback_ directly.
+	// Do we want to perhaps have this run in the output thread context for consistency?
+	if (!streams.size())
+	{
+		output_ready_callback_(request);
+		return;
+	}
+
+	std::unique_lock<std::mutex> l(mutex_);
+
+	// Run an async task per stream.
+	for (auto stream : streams)
+	{
+		auto process_fn =
+			[this, stream](CompletedRequest r) -> auto
+			{
+				process(r, stream);
+				cv_.notify_one();
+				return r;
+			};
+
+		// Move the CompletedRequest structure to action in the last Future. This tells the output thread that all
+		// the streams for this request have been processed. All other Futures are given an empty CompletedRequest
+		// structure.
+		std::future<CompletedRequest> f =
+			std::async(process_fn, std::move(stream == streams.back() ? request : CompletedRequest()));
+
+		results_.push(std::move(f));
+	}
+}
+
+void PostProcessStage::filterStreams(std::vector<Stream *> &streams)
+{
+	auto filter_fn =
+		[this](Stream *s)
+		{
+			return std::find(pixel_formats_.begin(), pixel_formats_.end(),
+							 s->configuration().pixelFormat) == pixel_formats_.end();
+		};
+
+	// Remove any streams that use an unsupported pixel format.
+	streams.erase(std::remove_if(streams.begin(), streams.end(), filter_fn), streams.end());
 }
 
 void PostProcessStage::outputThread()
 {
-	CompletedRequest completed_request;
-	int sequence_ = 0;
 	while (true)
 	{
+		CompletedRequest request;
+
 		{
-			std::unique_lock<std::mutex> lock(pps_output_mutex_);
-			while (true)
+			std::unique_lock<std::mutex> l(mutex_);
+			cv_.wait(l, [this] { return !results_.empty() || quit_; });
+
+			if (quit_)
+				break;
+
+			// request.buffers.size() != 0 for the last stream in the request.
+			while (!request.buffers.size() && !results_.empty() &&
+				   results_.front().wait_for(100us) == std::future_status::ready)
 			{
-				using namespace std::chrono_literals;
-				if (abort_)
-					return;
-				// We look for the thread that's completed the frame we want next.
-				// If we don't find it, we wait.
-				for (auto &q : pps_output_queue_)
-				{
-					if (!q.empty() && q.front().sequence == sequence_)
-					{
-						completed_request = q.front();
-						q.pop();
-						goto got_item;
-					}
-				}
-				pps_output_cond_var_.wait_for(lock, 200ms);
+				request = results_.front().get();
+				results_.pop();
 			}
 		}
-	got_item:
-		output_ready_callback_(completed_request);
-		sequence_++;
-	}
-}
 
-void PostProcessStage::process(CompletedRequest &completed_request, libcamera::Stream *stream)
-{
+		if (request.buffers.size())
+			output_ready_callback_(request);
+	}
 }

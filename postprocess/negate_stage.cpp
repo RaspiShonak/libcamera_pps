@@ -8,7 +8,6 @@ void NegateStage::process(CompletedRequest &completed_request, libcamera::Stream
 	uint8_t *ptr = buffer.data();
 
 	//Everything beyond this point is image processing...
-
 	for (unsigned int i = 0; i < buffer.size(); i++)
 		*(ptr++) ^= 0xff;
 }
