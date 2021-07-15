@@ -10,10 +10,7 @@ using namespace cv;
 class FaceDetectCVStage : public PostProcessStage
 {
 public:
-	FaceDetectCVStage(LibcameraApp *app, const std::vector<libcamera::PixelFormat> pixel_formats)
-		: PostProcessStage(app, pixel_formats)
-	{
-	}
+	FaceDetectCVStage(LibcameraApp *app) : PostProcessStage(app, { libcamera::formats::YUV420 }) {}
 
 protected:
 	void process(CompletedRequest &completed_request, libcamera::Stream *stream);

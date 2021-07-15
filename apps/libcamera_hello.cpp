@@ -20,7 +20,7 @@ using namespace std::placeholders;
 static void event_loop(LibcameraApp &app)
 {
 	Options const *options = app.GetOptions();
-	FaceDetectCVStage stage(&app, { libcamera::formats::YUV420 });
+	SobelCVStage stage(&app);
 
 	app.OpenCamera();
 	app.ConfigureViewfinder();
