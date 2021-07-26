@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.6)
+
+set(SRC negate.cpp)
+set(TARGET_LIBS "")
+
+find_package(OpenCV QUIET)
+
+if (OpenCV_FOUND)
+    message(STATUS "OpenCV library found:")
+    message(STATUS "    version: ${OpenCV_VERSION}")
+    message(STATUS "    libraries: ${OpenCV_LIBS}")
+    message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
+    include_directories(${OpenCV_INCLUDE_DIRS})
+    set(SRC ${SRC} )
+    set(TARGET_LIBS ${OpenCV_LIBS})
+else()
+    message(WARNING "OpenCV not found, some stages will not be built!")
+endif()
+
+add_library(post_processing_stages ${SRC})
+target_link_libraries(post_processing_stages ${TARGET_LIBS})
+target_compile_definitions(post_processing_stages PUBLIC OPENCV_PRESENT=${OpenCV_FOUND})
+
+install(TARGETS post_processing_stages LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)

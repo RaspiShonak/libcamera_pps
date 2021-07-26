@@ -40,6 +40,7 @@ static void event_loop(LibcameraApp &app)
 			return;
 
 		CompletedRequest &completed_request = std::get<CompletedRequest>(msg.payload);
+
 		app.ShowPreview(completed_request, app.ViewfinderStream());
 	}
 }
