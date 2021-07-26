@@ -3,7 +3,15 @@ cmake_minimum_required(VERSION 3.6)
 set(SRC negate_stage.cpp)
 set(TARGET_LIBS "")
 
-find_package(OpenCV QUIET)
+if ("${ENABLE_OPENCV}" STREQUAL "")
+    set(ENABLE_OPENCV 1)
+endif()
+
+set(OpenCV_FOUND)
+if (ENABLE_OPENCV)
+    message(STATUS "Checking for OpenCV")
+    find_package(OpenCV QUIET)
+endif()
 
 if (OpenCV_FOUND)
     message(STATUS "OpenCV library found:")
