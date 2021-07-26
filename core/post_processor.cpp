@@ -79,7 +79,6 @@ void PostProcessor::Process(CompletedRequest &request)
 		for (auto &stage : stages_)
 			stage->Process(request);
 		promise.set_value();
-		std::cout << "Output Thread Prodded" << std::endl;
 		cv_.notify_one();
 	};
 
@@ -91,7 +90,6 @@ void PostProcessor::Process(CompletedRequest &request)
 
 void PostProcessor::outputThread()
 {
-	std::cout << "Output Thread Started" << std::endl;
 	while (true)
 	{
 		CompletedRequest request;
@@ -104,7 +102,6 @@ void PostProcessor::outputThread()
 					   (!futures_.empty() && futures_.front().wait_for(0s) == std::future_status::ready);
 			});
 
-			std::cout << "Output Thread Running" << std::endl;
 			// Only quit when the futures_ queue is empty.
 			if (quit_ && futures_.empty())
 				break;
