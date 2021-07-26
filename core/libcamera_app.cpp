@@ -100,8 +100,8 @@ void LibcameraApp::OpenCamera()
 	if (options_->verbose)
 		std::cout << "Acquired camera " << cam_id << std::endl;
 
-	post_processor_.Read(options_->post_process_file);
-	//msg_queue_.Post(Msg(MsgType::RequestComplete, std::move(payload)));
+	if (!options_->post_process_file.empty())
+		post_processor_.Read(options_->post_process_file);
 	post_processor_.SetCallback(
 		[this](CompletedRequest &r) { this->msg_queue_.Post(Msg(MsgType::RequestComplete, std::move(r))); });
 }

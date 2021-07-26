@@ -65,6 +65,12 @@ void PostProcessor::Start()
 
 void PostProcessor::Process(CompletedRequest &request)
 {
+	if (stages_.empty())
+	{
+		callback_(request);
+		return;
+	}
+
 	std::unique_lock<std::mutex> l(mutex_);
 	requests_.push(std::move(request));
 
