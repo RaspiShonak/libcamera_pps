@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-set(SRC negate.cpp)
+set(SRC negate_stage.cpp)
 set(TARGET_LIBS "")
 
 find_package(OpenCV QUIET)
