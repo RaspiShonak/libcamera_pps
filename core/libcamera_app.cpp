@@ -480,30 +480,7 @@ libcamera::Stream *LibcameraApp::VideoStream(int *w, int *h, int *stride) const
 	return video_stream_;
 }
 
-std::vector<libcamera::Stream *> LibcameraApp::GetActiveStreams() const
-{
-	std::vector<libcamera::Stream *> streams;
-
-	if (viewfinder_stream_ != nullptr)
-	{
-		streams.push_back(viewfinder_stream_);
-	}
-	if (still_stream_ != nullptr)
-	{
-		streams.push_back(still_stream_);
-	}
-	if (raw_stream_ != nullptr)
-	{
-		streams.push_back(raw_stream_);
-	}
-	if (video_stream_ != nullptr)
-	{
-		streams.push_back(video_stream_);
-	}
-	return streams;
-}
-
-libcamera::Stream *LibcameraApp::GetActiveStream() const
+libcamera::Stream *LibcameraApp::GetMainStream() const
 {
 	std::vector<libcamera::Stream *> streams;
 

@@ -11,10 +11,10 @@ using namespace cv;
 
 using Stream = libcamera::Stream;
 
-class SobelCVStage : public PostProcessingStage
+class SobelCvStage : public PostProcessingStage
 {
 public:
-	SobelCVStage(LibcameraApp *app) : PostProcessingStage(app) {}
+	SobelCvStage(LibcameraApp *app) : PostProcessingStage(app) {}
 
 	char const *Name() const override;
 
@@ -29,24 +29,26 @@ private:
 	int ksize_ = 3;
 };
 
-#define NAME "sobelcv"
+#define NAME "sobel_cv"
 
-char const *SobelCVStage::Name() const
+char const *SobelCvStage::Name() const
 {
 	return NAME;
 }
 
-void SobelCVStage::Read(boost::property_tree::ptree const &params)
+void SobelCvStage::Read(boost::property_tree::ptree const &params)
 {
 	ksize_ = params.get<int16_t>("ksize", 3);
 }
 
-void SobelCVStage::Configure()
+void SobelCvStage::Configure()
 {
-	stream_ = app_->GetActiveStream();
+	stream_ = app_->GetMainStream();
+	if (!stream_ || stream_->configuration().pixelFormat != libcamera::formats::YUV420)
+		throw std::runtime_error("SobelCvStage: only YUV420 format supported");
 }
 
-void SobelCVStage::Process(CompletedRequest &completed_request)
+void SobelCvStage::Process(CompletedRequest &completed_request)
 {
 	int w, h, stride;
 	app_->StreamDimensions(stream_, &w, &h, &stride);
@@ -63,12 +65,6 @@ void SobelCVStage::Process(CompletedRequest &completed_request)
 	int ddepth = CV_16S;
 
 	memset(ptr + stride * h, value, num);
-
-	//Check if image is loaded fine
-	if (src.empty())
-	{
-		std::cout << "Error Loading Image" << std::endl;
-	}
 
 	// Remove noise by blurring with a Gaussian filter ( kernal size = 3 )
 	GaussianBlur(src, src, Size(3, 3), 0, 0, BORDER_DEFAULT);
@@ -90,7 +86,7 @@ void SobelCVStage::Process(CompletedRequest &completed_request)
 
 static PostProcessingStage *Create(LibcameraApp *app)
 {
-	return new SobelCVStage(app);
+	return new SobelCvStage(app);
 }
 
 static RegisterStage reg(NAME, &Create);

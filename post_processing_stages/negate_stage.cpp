@@ -31,7 +31,7 @@ char const *NegateStage::Name() const
 
 void NegateStage::Configure()
 {
-	stream_ = app_->GetActiveStream();
+	stream_ = app_->GetMainStream();
 }
 
 void NegateStage::Process(CompletedRequest &completed_request)

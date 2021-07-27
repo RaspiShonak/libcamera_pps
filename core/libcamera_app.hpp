@@ -109,8 +109,7 @@ public:
 	Stream *StillStream(int *w = nullptr, int *h = nullptr, int *stride = nullptr) const;
 	Stream *RawStream(int *w = nullptr, int *h = nullptr, int *stride = nullptr) const;
 	Stream *VideoStream(int *w = nullptr, int *h = nullptr, int *stride = nullptr) const;
-	std::vector<Stream *> GetActiveStreams() const;
-	Stream *GetActiveStream() const;
+	Stream *GetMainStream() const;
 
 	std::vector<libcamera::Span<uint8_t>> Mmap(FrameBuffer *buffer) const;
 

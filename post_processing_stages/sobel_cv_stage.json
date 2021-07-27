@@ -1,5 +1,5 @@
 {
-    "sobelcv":
+    "sobel_cv":
     {
 	"ksize":5
     }
