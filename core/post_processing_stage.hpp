@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
+/*
+ * Copyright (C) 2021, Raspberry Pi (Trading) Limited
+ *
+ * post_processing_stage.hpp - Post processing stage base class definition.
+ */
+
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 

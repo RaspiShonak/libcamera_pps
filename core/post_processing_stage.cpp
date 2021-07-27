@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
+/*
+ * Copyright (C) 2021, Raspberry Pi (Trading) Limited
+ *
+ * post_processing_stage.cpp - Post processing stage base class implementation.
+ */
+
 #include "core/post_processing_stage.hpp"
 
 PostProcessingStage::PostProcessingStage(LibcameraApp *app) : app_(app)

@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
+/*
+ * Copyright (C) 2021, Raspberry Pi (Trading) Limited
+ *
+ * sobel_cv_stage.cpp - Sobel filter implementation, using OpenCV
+ */
+
 #include <libcamera/stream.h>
 
 #include "../core/libcamera_app.hpp"

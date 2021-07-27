@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
+/*
+ * Copyright (C) 2021, Raspberry Pi (Trading) Limited
+ *
+ * post_processor.cpp - Post processor implementation.
+ */
+
 #include <iostream>
 
 #include "core/post_processor.hpp"

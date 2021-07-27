@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
+/*
+ * Copyright (C) 2021, Raspberry Pi (Trading) Limited
+ *
+ * negate_stage.cpp - image negate effect
+ */
+
 #include <libcamera/stream.h>
 
 #include "../core/libcamera_app.hpp"
