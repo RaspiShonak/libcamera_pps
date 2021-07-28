@@ -1,6 +1,6 @@
 {
     "sobel_cv":
     {
-	"ksize":5
+	    "ksize":5
     }
 }
