@@ -25,10 +25,10 @@ using namespace cv;
 
 using Stream = libcamera::Stream;
 
-class FaceDetectCVStage : public PostProcessingStage
+class FaceDetectCvStage : public PostProcessingStage
 {
 public:
-	FaceDetectCVStage(LibcameraApp *app) : PostProcessingStage(app) {}
+	FaceDetectCvStage(LibcameraApp *app) : PostProcessingStage(app) {}
 
 	char const *Name() const override;
 
@@ -62,17 +62,17 @@ private:
 
 #define NAME "face_detect_cv"
 
-char const *FaceDetectCVStage::Name() const
+char const *FaceDetectCvStage::Name() const
 {
 	return NAME;
 }
 
-void FaceDetectCVStage::Read(boost::property_tree::ptree const &params)
+void FaceDetectCvStage::Read(boost::property_tree::ptree const &params)
 {
 	cascadeName_ =
 		params.get<char>("cascade_name", "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml");
 	if (!cascade_.load(cascadeName_))
-		throw std::runtime_error("FaceDetectCVStage: failed to load haar classifier");
+		throw std::runtime_error("FaceDetectCvStage: failed to load haar classifier");
 	scaling_factor_ = params.get<double>("scaling_factor", 1.1);
 	min_neighbors_ = params.get<int>("min_neighbors", 3);
 	min_size_ = params.get<int>("min_size", 32);
@@ -81,14 +81,14 @@ void FaceDetectCVStage::Read(boost::property_tree::ptree const &params)
 	draw_features_ = params.get<int>("draw_features", 1);
 }
 
-void FaceDetectCVStage::Configure()
+void FaceDetectCvStage::Configure()
 {
 	stream_ = app_->GetMainStream();
 	if (!stream_ || stream_->configuration().pixelFormat != libcamera::formats::YUV420)
 		throw std::runtime_error("SobelCvStage: only YUV420 format supported");
 }
 
-void FaceDetectCVStage::Process(CompletedRequest &completed_request)
+void FaceDetectCvStage::Process(CompletedRequest &completed_request)
 {
 	int w, h, stride;
 	app_->StreamDimensions(stream_, &w, &h, &stride);
@@ -123,7 +123,7 @@ void FaceDetectCVStage::Process(CompletedRequest &completed_request)
 		drawFeatures(image, scale);
 }
 
-void FaceDetectCVStage::detectFeatures(CascadeClassifier &cascade)
+void FaceDetectCvStage::detectFeatures(CascadeClassifier &cascade)
 {
 	equalizeHist(image_, image_);
 
@@ -135,7 +135,7 @@ void FaceDetectCVStage::detectFeatures(CascadeClassifier &cascade)
 	faces_ = std::move(temp_faces);
 }
 
-void FaceDetectCVStage::drawFeatures(Mat &img, double scale)
+void FaceDetectCvStage::drawFeatures(Mat &img, double scale)
 {
 	const static Scalar colors[] = {
 		Scalar(255, 0, 0),	 Scalar(255, 128, 0), Scalar(255, 255, 0), Scalar(0, 255, 0),
@@ -164,7 +164,7 @@ void FaceDetectCVStage::drawFeatures(Mat &img, double scale)
 	}
 }
 
-void FaceDetectCVStage::Stop()
+void FaceDetectCvStage::Stop()
 {
 	if (future_ptr_)
 		future_ptr_->wait();
@@ -172,7 +172,7 @@ void FaceDetectCVStage::Stop()
 
 static PostProcessingStage *Create(LibcameraApp *app)
 {
-	return new FaceDetectCVStage(app);
+	return new FaceDetectCvStage(app);
 }
 
 static RegisterStage reg(NAME, &Create);
