@@ -72,7 +72,7 @@ void FaceDetectCVStage::Read(boost::property_tree::ptree const &params)
 	cascadeName_ =
 		params.get<char>("cascade_name", "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml");
 	if (!cascade_.load(cascadeName_))
-		std::cerr << "ERROR: Could not load classifier cascade" << std::endl;
+		throw std::runtime_error("FaceDetectCVStage: failed to load haar classifier");
 	scaling_factor_ = params.get<double>("scaling_factor", 1.1);
 	min_neighbors_ = params.get<int>("min_neighbors", 3);
 	min_size_ = params.get<int>("min_size", 32);
