@@ -71,7 +71,7 @@ void FaceDetectCVStage::Read(boost::property_tree::ptree const &params)
 {
 	cascadeName_ =
 		params.get<char>("cascade_name", "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml");
-	if (!cascade_.load(cv::samples::findFile(cascadeName_)))
+	if (!cascade_.load(cascadeName_))
 		std::cerr << "ERROR: Could not load classifier cascade" << std::endl;
 	scaling_factor_ = params.get<double>("scaling_factor", 1.1);
 	min_neighbors_ = params.get<int>("min_neighbors", 3);
@@ -105,7 +105,7 @@ void FaceDetectCVStage::Process(CompletedRequest &completed_request)
 		if (completed_request.sequence % refresh_rate_ == 0 &&
 			(!future_ptr_ || future_ptr_->wait_for(std::chrono::seconds(0)) == std::future_status::ready))
 		{
-			resize(image, image_, Size(), 1 / scale, 1 / scale, INTER_LINEAR_EXACT);
+			resize(image, image_, Size(), 1 / scale, 1 / scale, INTER_LINEAR);
 
 			future_ptr_ = std::make_unique<std::future<void>>();
 			*future_ptr_ = std::move(std::async(std::launch::async, [this] { detectFeatures(cascade_); }));
